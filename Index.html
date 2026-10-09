@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; background: #fafafa; }
+    h1 { margin-bottom: 5px; }
+    h2 { margin-top: 30px; color: #333; }
+    input, select, button { padding: 8px 12px; margin: 4px 0; font-size: 14px; }
+    input { border: 1px solid #ccc; border-radius: 4px; width: 200px; }
+    select { border: 1px solid #ccc; border-radius: 4px; }
+    button { cursor: pointer; background: #4285f4; color: white; border: none; border-radius: 4px; }
+    button:hover { background: #3367d6; }
+    pre { background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 4px; white-space: pre-wrap; min-height: 40px; }
+    .field { margin-bottom: 10px; }
+    label { display: inline-block; width: 150px; font-weight: bold; }
+    p.hint { color: #666; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <h1>Portal API Tester</h1>
+  <p class="hint">Use this page to test the doPost actions directly.</p>
+
+  <h2>Update Task</h2>
+  <div class="field">
+    <label>Task ID</label>
+    <input type="text" id="taskId" placeholder="e.g. t42">
+  </div>
+  <div class="field">
+    <label>Status</label>
+    <select id="taskStatus">
+      <option>Open</option>
+      <option>In Progress</option>
+      <option>Review</option>
+      <option>Complete</option>
+    </select>
+  </div>
+  <button onclick="runUpdateTask()">Update Task</button>
+
+  <h2>Set Attendance Required</h2>
+  <div class="field">
+    <label>Your User ID</label>
+    <input type="text" id="actorId" placeholder="e.g. u1 (admin)">
+  </div>
+  <div class="field">
+    <label>Target User ID</label>
+    <input type="text" id="targetId" placeholder="e.g. u3">
+  </div>
+  <div class="field">
+    <label>Required</label>
+    <select id="reqValue">
+      <option value="true">Yes</option>
+      <option value="false">No</option>
+    </select>
+  </div>
+  <button onclick="runSetAttendance()">Set Attendance</button>
+
+  <h2>Result</h2>
+  <pre id="output">Waiting...</pre>
+
+  <script>
+    function showResult(r) {
+      document.getElementById("output").textContent = JSON.stringify(r, null, 2);
+    }
+
+    function showError(e) {
+      document.getElementById("output").textContent = "Error: " + e.message;
+    }
+
+    function runUpdateTask() {
+      var id = document.getElementById("taskId").value.trim();
+      var status = document.getElementById("taskStatus").value;
+      if (!id) { alert("Enter a task ID"); return; }
+      document.getElementById("output").textContent = "Sending...";
+      google.script.run
+        .withSuccessHandler(showResult)
+        .withFailureHandler(showError)
+        .handleUpdateTask(id, status);
+    }
+
+    function runSetAttendance() {
+      var actorId = document.getElementById("actorId").value.trim();
+      var targetId = document.getElementById("targetId").value.trim();
+      var required = document.getElementById("reqValue").value === "true";
+      if (!actorId || !targetId) { alert("Fill in both user IDs"); return; }
+      document.getElementById("output").textContent = "Sending...";
+      google.script.run
+        .withSuccessHandler(showResult)
+        .withFailureHandler(showError)
+        .handleSetAttendance(actorId, targetId, required);
+    }
+  </script>
+</body>
+</html>
